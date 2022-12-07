@@ -1,18 +1,42 @@
-import { renderSearchFormBlock } from "../src/search-form";
-import { renderSearchStubBlock } from "../src/search-results";
-import { renderUserBlock } from "../src/user";
-import { renderToast } from "../src/lib";
+import { renderSearchFormBlock, getFormData } from "./search-form.js";
+import { renderSearchStubBlock } from "./search-results.js";
+import {
+  renderUserBlock,
+  getUserData,
+  User,
+  getFavoritesAmount,
+} from "./user.js";
+import { renderToast, renderBlock } from "./lib.js";
 window.addEventListener("DOMContentLoaded", () => {
-    renderUserBlock("Den Warren", "/img/avatar.png", 0);
-    renderSearchFormBlock();
-    renderSearchStubBlock();
-    renderToast({
-        text: "Это пример уведомления. Используйте его при необходимости",
+  localStorage.setItem(
+    "user",
+    JSON.stringify({ username: "Den Warren", avatarUrl: "/img/avatar.png" })
+  );
+  localStorage.setItem("favoritesAmount", JSON.stringify(24));
+  const user = getUserData();
+  const userFavorites = getFavoritesAmount();
+  if (user instanceof User && typeof userFavorites === "number") {
+    renderUserBlock(user.username, user.avatarUrl, userFavorites);
+  }
+  if (user instanceof User && typeof userFavorites !== "number") {
+    renderUserBlock(user.username, user.avatarUrl);
+  }
+  if (typeof user === "string") {
+    renderToast(
+      {
+        text: `${user}`,
         type: "success",
-    }, {
+      },
+      {
         name: "Понял",
         handler: () => {
-            console.log("Уведомление закрыто");
+          console.log("Уведомление закрыто");
         },
-    });
+      }
+    );
+    renderBlock("user-block", `<br/><p>${user}</p>`);
+  }
+  renderSearchFormBlock();
+  renderSearchStubBlock();
+  getFormData();
 });
